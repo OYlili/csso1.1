@@ -2,7 +2,7 @@ name: Build Android
 
 on:
   push:
-    branches: [main]
+    branches: [cssoso-1.0]
     paths:
       - 'scripts/**'
       - '.github/workflows/build-android.yml'
