@@ -24,25 +24,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup MSVC environment
-      uses: microsoft/setup-msbuild@v2
-
     - name: Configure and Build Client
-      shell: powershell
+      shell: cmd
       run: |
-        $vsPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
-        if (-not (Test-Path $vsPath)) {
-          $vsPath = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise"
-        }
-        $vcvarsPath = "$vsPath\VC\Auxiliary\Build\vcvars32.bat"
-        
-        cmd /c "`"$vcvarsPath`" >nul 2>&1 && set" | ForEach-Object {
-          if ($_ -match "^([^=]+)=(.*)$") {
-            [Environment]::SetEnvironmentVariable($matches[1], $matches[2], "Process")
-          }
-        }
-        
-        python waf configure -T release
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+        python waf configure -T release --32bits
         python waf build
 
     - name: Prepare Client Artifacts
@@ -66,25 +52,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup MSVC environment
-      uses: microsoft/setup-msbuild@v2
-
     - name: Configure and Build Server
-      shell: powershell
+      shell: cmd
       run: |
-        $vsPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
-        if (-not (Test-Path $vsPath)) {
-          $vsPath = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise"
-        }
-        $vcvarsPath = "$vsPath\VC\Auxiliary\Build\vcvars32.bat"
-        
-        cmd /c "`"$vcvarsPath`" >nul 2>&1 && set" | ForEach-Object {
-          if ($_ -match "^([^=]+)=(.*)$") {
-            [Environment]::SetEnvironmentVariable($matches[1], $matches[2], "Process")
-          }
-        }
-        
-        python waf configure -T release -d
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+        python waf configure -T release -d --32bits
         python waf build
 
     - name: Prepare Server Artifacts
