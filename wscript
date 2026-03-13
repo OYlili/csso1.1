@@ -334,9 +334,15 @@ def options(opt):
 	opt.load('reconfigure')
 
 def check_deps(conf):
-	if conf.env.DEST_OS != 'win32':
+	if conf.env.DEST_OS != 'win32' and conf.env.DEST_OS != 'android':
 		conf.check_cc(lib='dl', mandatory=False)
 		conf.check_cc(lib='bz2', mandatory=True)
+		conf.check_cc(lib='rt', mandatory=False)
+
+		if not conf.env.LIB_M: # HACK: already added in xcompile!
+			conf.check_cc(lib='m')
+	elif conf.env.DEST_OS == 'android':
+		conf.check_cc(lib='dl', mandatory=False)
 		conf.check_cc(lib='rt', mandatory=False)
 
 		if not conf.env.LIB_M: # HACK: already added in xcompile!
@@ -471,7 +477,7 @@ def configure(conf):
 	elif conf.env.GL:
 		projects['game'] += ['togl']
 
-	if conf.env.DEST_OS == 'win32':
+	if conf.env.DEST_OS == 'win32' or conf.env.DEST_OS == 'android':
 		projects['game'] += ['utils/bzip2']
 		projects['dedicated'] += ['utils/bzip2']
 	if conf.options.OPUS or conf.env.DEST_OS == 'android':
@@ -639,7 +645,7 @@ def build(bld):
 		sdl_path = os.path.join('lib', bld.env.DEST_OS, bld.env.DEST_CPU, sdl_name)
 		bld.install_files(bld.env.LIBDIR, [sdl_path])
 
-	if bld.env.DEST_OS == 'win32':
+	if bld.env.DEST_OS in ['win32', 'android']:
 		projects['game'] += ['utils/bzip2']
 		projects['dedicated'] += ['utils/bzip2']
 
