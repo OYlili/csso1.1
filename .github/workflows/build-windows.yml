@@ -18,13 +18,15 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  Build-Windows-Client:
+  Build-Windows-Client-32bit:
     runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
-    - name: Configure and Build Client
+    - name: Configure and Build Client (32-bit)
       shell: cmd
       run: |
         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
@@ -38,21 +40,53 @@ jobs:
         if (Test-Path "build\release") {
           Copy-Item -Path "build\release\*" -Destination "artifacts-client" -Recurse
         }
-        Compress-Archive -Path "artifacts-client\*" -DestinationPath "csso-client-windows.zip"
+        Compress-Archive -Path "artifacts-client\*" -DestinationPath "csso-client-windows-x86.zip"
 
     - name: Upload Client Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: csso-client-windows
-        path: csso-client-windows.zip
+        name: csso-client-windows-x86
+        path: csso-client-windows-x86.zip
 
-  Build-Windows-Server:
+  Build-Windows-Client-64bit:
     runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
-    - name: Configure and Build Server
+    - name: Configure and Build Client (64-bit)
+      shell: cmd
+      run: |
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        python waf configure -T release
+        python waf build
+
+    - name: Prepare Client Artifacts
+      shell: powershell
+      run: |
+        New-Item -ItemType Directory -Force -Path artifacts-client
+        if (Test-Path "build\release") {
+          Copy-Item -Path "build\release\*" -Destination "artifacts-client" -Recurse
+        }
+        Compress-Archive -Path "artifacts-client\*" -DestinationPath "csso-client-windows-x64.zip"
+
+    - name: Upload Client Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: csso-client-windows-x64
+        path: csso-client-windows-x64.zip
+
+  Build-Windows-Server-32bit:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Configure and Build Server (32-bit)
       shell: cmd
       run: |
         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
@@ -66,16 +100,46 @@ jobs:
         if (Test-Path "build\release") {
           Copy-Item -Path "build\release\*" -Destination "artifacts-server" -Recurse
         }
-        Compress-Archive -Path "artifacts-server\*" -DestinationPath "csso-server-windows.zip"
+        Compress-Archive -Path "artifacts-server\*" -DestinationPath "csso-server-windows-x86.zip"
 
     - name: Upload Server Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: csso-server-windows
-        path: csso-server-windows.zip
+        name: csso-server-windows-x86
+        path: csso-server-windows-x86.zip
+
+  Build-Windows-Server-64bit:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Configure and Build Server (64-bit)
+      shell: cmd
+      run: |
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        python waf configure -T release -d
+        python waf build
+
+    - name: Prepare Server Artifacts
+      shell: powershell
+      run: |
+        New-Item -ItemType Directory -Force -Path artifacts-server
+        if (Test-Path "build\release") {
+          Copy-Item -Path "build\release\*" -Destination "artifacts-server" -Recurse
+        }
+        Compress-Archive -Path "artifacts-server\*" -DestinationPath "csso-server-windows-x64.zip"
+
+    - name: Upload Server Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: csso-server-windows-x64
+        path: csso-server-windows-x64.zip
 
   Create-Release:
-    needs: [Build-Windows-Client, Build-Windows-Server]
+    needs: [Build-Windows-Client-32bit, Build-Windows-Client-64bit, Build-Windows-Server-32bit, Build-Windows-Server-64bit]
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true') }}
 
@@ -104,11 +168,15 @@ jobs:
           - Build Number: ${{ github.run_number }}
           
           **Downloads:**
-          - `csso-client-windows.zip` - Windows Client
-          - `csso-server-windows.zip` - Windows Server
+          - `csso-client-windows-x86.zip` - Windows Client (32-bit)
+          - `csso-client-windows-x64.zip` - Windows Client (64-bit)
+          - `csso-server-windows-x86.zip` - Windows Server (32-bit)
+          - `csso-server-windows-x64.zip` - Windows Server (64-bit)
         files: |
-          artifacts/csso-client-windows/csso-client-windows.zip
-          artifacts/csso-server-windows/csso-server-windows.zip
+          artifacts/csso-client-windows-x86/csso-client-windows-x86.zip
+          artifacts/csso-client-windows-x64/csso-client-windows-x64.zip
+          artifacts/csso-server-windows-x86/csso-server-windows-x86.zip
+          artifacts/csso-server-windows-x64/csso-server-windows-x64.zip
         draft: false
         prerelease: false
       env:
