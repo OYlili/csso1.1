@@ -1,49 +1,25 @@
-name: Build
+name: Build Windows
 
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'scripts/**'
+      - '.github/workflows/build-android.yml'
   workflow_dispatch:
     inputs:
       create_release:
         description: 'Create a release'
         required: false
-        default: 'true'
+        default: true
         type: boolean
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
-  Build-apk-for-android:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Cloning modlaucher repo and preparing for building
-      run: |
-        git clone https://github.com/DMK95/Srceng-mod-launcher/ -b csso
-        sudo apt-get update
-        sudo apt-get install -f -y openjdk-8-jre zip apksigner
-    - name: Build Android (32 bit)
-      run: |
-        scripts/build-android-armv7a.sh
-    - name: Build Android (64 bit)
-      run: |
-        scripts/build-android-aarch64.sh    
-    - name: Build APK
-      run: |
-        scripts/build-apk.sh 
-    - name: Rename APK
-      run: |
-         mv Srceng-mod-launcher/build/android/mod-signed.apk csso-release.apk
-
-    - name: 'Upload Artifact'
-      uses: actions/upload-artifact@v4
-      with:
-        name: csso-apk
-        path: csso-release.apk
-
   Build-Windows-Client:
     runs-on: windows-2019
-    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
 
     steps:
     - uses: actions/checkout@v4
@@ -54,18 +30,15 @@ jobs:
     - name: Configure and Build Client
       shell: powershell
       run: |
-        # 激活 vcvars32.bat 环境 (x86 32位)
         $vsPath = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise"
         $vcvarsPath = "$vsPath\VC\Auxiliary\Build\vcvars32.bat"
         
-        # 运行 vcvars32.bat 并捕获环境变量
         cmd /c "`"$vcvarsPath`" >nul 2>&1 && set" | ForEach-Object {
           if ($_ -match "^([^=]+)=(.*)$") {
             [Environment]::SetEnvironmentVariable($matches[1], $matches[2], "Process")
           }
         }
         
-        # 配置并构建客户端
         python waf configure -T release
         python waf build
 
@@ -76,10 +49,9 @@ jobs:
         if (Test-Path "build\release") {
           Copy-Item -Path "build\release\*" -Destination "artifacts-client" -Recurse
         }
-        # 压缩产物
         Compress-Archive -Path "artifacts-client\*" -DestinationPath "csso-client-windows.zip"
 
-    - name: 'Upload Client Artifact'
+    - name: Upload Client Artifact
       uses: actions/upload-artifact@v4
       with:
         name: csso-client-windows
@@ -87,7 +59,6 @@ jobs:
 
   Build-Windows-Server:
     runs-on: windows-2019
-    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
 
     steps:
     - uses: actions/checkout@v4
@@ -98,18 +69,15 @@ jobs:
     - name: Configure and Build Server
       shell: powershell
       run: |
-        # 激活 vcvars32.bat 环境 (x86 32位)
         $vsPath = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise"
         $vcvarsPath = "$vsPath\VC\Auxiliary\Build\vcvars32.bat"
         
-        # 运行 vcvars32.bat 并捕获环境变量
         cmd /c "`"$vcvarsPath`" >nul 2>&1 && set" | ForEach-Object {
           if ($_ -match "^([^=]+)=(.*)$") {
             [Environment]::SetEnvironmentVariable($matches[1], $matches[2], "Process")
           }
         }
         
-        # 配置并构建服务端
         python waf configure -T release -d
         python waf build
 
@@ -120,17 +88,16 @@ jobs:
         if (Test-Path "build\release") {
           Copy-Item -Path "build\release\*" -Destination "artifacts-server" -Recurse
         }
-        # 压缩产物
         Compress-Archive -Path "artifacts-server\*" -DestinationPath "csso-server-windows.zip"
 
-    - name: 'Upload Server Artifact'
+    - name: Upload Server Artifact
       uses: actions/upload-artifact@v4
       with:
         name: csso-server-windows
         path: csso-server-windows.zip
 
   Create-Release:
-    needs: [Build-apk-for-android, Build-Windows-Client, Build-Windows-Server]
+    needs: [Build-Windows-Client, Build-Windows-Server]
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true') }}
 
@@ -148,10 +115,10 @@ jobs:
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v${{ github.run_number }}
-        name: Release v${{ github.run_number }}
+        tag_name: win-v${{ github.run_number }}
+        name: Windows Build v${{ github.run_number }}
         body: |
-          CSSO Build Release
+          CSSO Windows Build Release
           
           **Build Info:**
           - Commit: ${{ github.sha }}
@@ -159,11 +126,9 @@ jobs:
           - Build Number: ${{ github.run_number }}
           
           **Downloads:**
-          - `csso-apk/csso-release.apk` - Android APK
           - `csso-client-windows.zip` - Windows Client
           - `csso-server-windows.zip` - Windows Server
         files: |
-          artifacts/csso-apk/csso-release.apk
           artifacts/csso-client-windows/csso-client-windows.zip
           artifacts/csso-server-windows/csso-server-windows.zip
         draft: false
