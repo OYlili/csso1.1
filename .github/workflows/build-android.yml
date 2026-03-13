@@ -29,7 +29,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y openjdk-8-jre zip apksigner
+        sudo apt-get install -y openjdk-8-jre zip apksigner libbz2-dev
 
     - name: Download Android NDK r10e
       run: |
