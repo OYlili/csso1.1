@@ -25,6 +25,12 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
+        fetch-depth: 0
+
+    - name: Initialize submodules
+      shell: cmd
+      run: |
+        git submodule update --init --recursive
 
     - name: Configure and Build Client (32-bit)
       shell: cmd
@@ -55,6 +61,12 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
+        fetch-depth: 0
+
+    - name: Initialize submodules
+      shell: cmd
+      run: |
+        git submodule update --init --recursive
 
     - name: Configure and Build Client (64-bit)
       shell: cmd
@@ -85,6 +97,12 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
+        fetch-depth: 0
+
+    - name: Initialize submodules
+      shell: cmd
+      run: |
+        git submodule update --init --recursive
 
     - name: Configure and Build Server (32-bit)
       shell: cmd
@@ -115,6 +133,12 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
+        fetch-depth: 0
+
+    - name: Initialize submodules
+      shell: cmd
+      run: |
+        git submodule update --init --recursive
 
     - name: Configure and Build Server (64-bit)
       shell: cmd
