@@ -19,7 +19,7 @@ env:
 
 jobs:
   Build-Windows-Client:
-    runs-on: windows-2019
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -30,7 +30,10 @@ jobs:
     - name: Configure and Build Client
       shell: powershell
       run: |
-        $vsPath = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise"
+        $vsPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+        if (-not (Test-Path $vsPath)) {
+          $vsPath = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise"
+        }
         $vcvarsPath = "$vsPath\VC\Auxiliary\Build\vcvars32.bat"
         
         cmd /c "`"$vcvarsPath`" >nul 2>&1 && set" | ForEach-Object {
@@ -58,7 +61,7 @@ jobs:
         path: csso-client-windows.zip
 
   Build-Windows-Server:
-    runs-on: windows-2019
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -69,7 +72,10 @@ jobs:
     - name: Configure and Build Server
       shell: powershell
       run: |
-        $vsPath = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise"
+        $vsPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+        if (-not (Test-Path $vsPath)) {
+          $vsPath = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise"
+        }
         $vcvarsPath = "$vsPath\VC\Auxiliary\Build\vcvars32.bat"
         
         cmd /c "`"$vcvarsPath`" >nul 2>&1 && set" | ForEach-Object {
