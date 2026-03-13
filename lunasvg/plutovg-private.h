@@ -8,6 +8,12 @@
 
 #include "plutovg.h"
 
+#ifdef _MSC_VER
+#define PLUTOVG_TYPEOF(x) decltype(x)
+#else
+#define PLUTOVG_TYPEOF(x) __typeof__(x)
+#endif
+
 struct plutovg_surface {
     int ref;
     unsigned char* data;
@@ -188,7 +194,7 @@ do { \
             int capacity = array.size + count; \
             int newcapacity = array.capacity == 0 ? 8 : array.capacity; \
             while(newcapacity < capacity) { newcapacity *= 2; } \
-            array.data = realloc(array.data, newcapacity * sizeof(array.data[0])); \
+            array.data = (PLUTOVG_TYPEOF(array.data))realloc(array.data, newcapacity * sizeof(array.data[0])); \
             array.capacity = newcapacity; \
     } \
 } while(0)
