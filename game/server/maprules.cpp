@@ -12,12 +12,10 @@
 #include "entitylist.h"
 #include "ai_hull.h"
 #include "entityoutput.h"
-#ifdef CSTRIKE_DLL
 #include "cs_player.h"
 #include "cs_shareddefs.h"
 #include "cs_loadout.h"
 #include "cs_gamerules.h"
-#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
