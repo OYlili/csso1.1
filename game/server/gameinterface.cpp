@@ -1862,6 +1862,7 @@ void CServerGameDLL::InvalidateMdlCache()
 	}
 }
 
+#if defined( CSTRIKE_DLL )
 KeyValues* CServerGameDLL::GetExtendedServerInfoForNewClient()
 {
 	static KeyValues *s_pExtendedServerInfo = NULL;
@@ -1911,6 +1912,12 @@ KeyValues* CServerGameDLL::GetExtendedServerInfoForNewClient()
 	}
 	return s_pExtendedServerInfo;
 }
+#else
+KeyValues* CServerGameDLL::GetExtendedServerInfoForNewClient()
+{
+	return NULL;
+}
+#endif
 
 // interface to the new GC based lobby system
 IServerGCLobby *CServerGameDLL::GetServerGCLobby()
