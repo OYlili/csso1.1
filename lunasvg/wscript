@@ -63,7 +63,7 @@ def build(bld):
 
 	libs = []
 	
-	bld.stlib(
+	bld.shlib(
 		source   = source,
 		target   = PROJECT_NAME,
 		name     = PROJECT_NAME,
@@ -71,6 +71,7 @@ def build(bld):
 		includes = includes,
 		defines  = defines,
 		use      = libs,
+		install_path = bld.env.LIBDIR,
 		subsystem = bld.env.MSVC_SUBSYSTEM,
 		idx      = bld.get_taskgen_count()
 	)
