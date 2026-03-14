@@ -33,6 +33,7 @@ jobs:
       shell: cmd
       run: |
         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+        python waf distclean 2>nul || echo "No previous build to clean"
         python waf configure -T release --32bits || exit /b 1
         python waf build || exit /b 1
 
@@ -69,6 +70,7 @@ jobs:
       shell: cmd
       run: |
         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        python waf distclean 2>nul || echo "No previous build to clean"
         python waf configure -T release || exit /b 1
         python waf build || exit /b 1
 
@@ -105,6 +107,7 @@ jobs:
       shell: cmd
       run: |
         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+        python waf distclean 2>nul || echo "No previous build to clean"
         python waf configure -T release -d --32bits || exit /b 1
         python waf build || exit /b 1
 
@@ -141,6 +144,7 @@ jobs:
       shell: cmd
       run: |
         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        python waf distclean 2>nul || echo "No previous build to clean"
         python waf configure -T release -d || exit /b 1
         python waf build || exit /b 1
 
