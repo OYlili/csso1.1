@@ -116,6 +116,8 @@ def parse_vpcs( env ,vpcs, basedir ):
 		l = f.split('\n')
 
 		iBrackets = 0
+		in_compiler = False
+		compiler_brackets = 0
 
 		next_br = False
 		ret = {}
@@ -137,8 +139,13 @@ def parse_vpcs( env ,vpcs, basedir ):
 				next_br = False
 			elif i == '}':
 				iBrackets -= 1
+				if in_compiler and iBrackets < compiler_brackets:
+					in_compiler = False
 			elif iBrackets > 0:
 				ret[cur_key].append(i)
+				if '$Compiler' in i:
+					in_compiler = True
+					compiler_brackets = iBrackets
 
 			if next_br:
 				next_br = False
@@ -164,8 +171,6 @@ def parse_vpcs( env ,vpcs, basedir ):
 					sources.append(s)
 
 		for i in ret['$Configuration']:
-			if '$Compiler' in i:
-				continue
 			if '$PreprocessorDefinitions' in i:
 				i = i.replace('$BASE', '')
 				s = i.split('"')[1]
