@@ -2489,12 +2489,7 @@ void C_BaseAnimating::CalculateIKLocks( float currentTime )
 		}
 	}
 
-#if defined( HL2_CLIENT_DLL )
-	if (minHeight < FLT_MAX)
-	{
-		input->AddIKGroundContactInfo( entindex(), minHeight, maxHeight );
-	}
-#endif
+
 
 	CBaseEntity::PopEnableAbsRecomputations();
 	::partition->SuppressLists( curSuppressed, true );
