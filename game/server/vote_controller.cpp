@@ -988,7 +988,11 @@ int CBaseIssue::GetVotesRequiredToPass( void )
 	}
 	else
 	{
+#if defined( CSTRIKE_DLL )
 		float flnVotesToSucceed = ( CSGameRules() && CSGameRules()->IsPlayingAnyCompetitiveStrictRuleset() ) ? MAX( 1, nPotentialVoters - 1 ) : ( ( float )nPotentialVoters * sv_vote_quorum_ratio.GetFloat() );
+#else
+		float flnVotesToSucceed = ( ( float )nPotentialVoters * sv_vote_quorum_ratio.GetFloat() );
+#endif
 		nVotesToSucceed = ceil( flnVotesToSucceed );
 	}
 
