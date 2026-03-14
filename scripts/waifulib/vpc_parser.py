@@ -115,11 +115,9 @@ def parse_vpcs( env ,vpcs, basedir ):
 		re.sub(r'//.*', '', f)
 		l = f.split('\n')
 
-		iBrackets = 0
-
-		next_br = False
 		ret = {}
-		cur_key = ''
+		stack = [ret]
+		cur_key = None
 
 		for i in l:
 			if i == '': continue
@@ -128,78 +126,81 @@ def parse_vpcs( env ,vpcs, basedir ):
 			if s and not compute_statement(env.DEFINES+defines, s.group(0)):
 				continue
 
-			if i.startswith('$') and iBrackets == 0:
-				ret.update({i:[]})
+			i = i.strip()
+			if i.startswith('$') and not i.startswith('$PreprocessorDefinitions') and not i.startswith('$AdditionalIncludeDirectories') and not i.startswith('$File'):
 				cur_key = i
-				next_br = True
+				stack[-1][cur_key] = []
+				stack.append(stack[-1][cur_key])
 			elif i == '{':
-				iBrackets += 1
-				next_br = False
+				pass
 			elif i == '}':
-				iBrackets -= 1
-			elif iBrackets > 0:
-				ret[cur_key].append(i)
-
-			if next_br:
-				next_br = False
+				if len(stack) > 1:
+					stack.pop()
+			elif cur_key:
+				if isinstance(stack[-1], list):
+					stack[-1].append(i)
 
 		key = project_key(ret)
-		l=ret[key]
+		if key:
+			l=ret[key]
 
-		for i in l:
-			if '-$File' in i and '.h"' not in i:
-				for k in i.split(';'):
-					k = k.replace('$SRCDIR', basedir)
-					s = fix_dos_path(k.split('"')[1])
+			for i in l:
+				if isinstance(i, str):
+					if '-$File' in i and '.h"' not in i:
+						for k in i.split(';'):
+							k = k.replace('$SRCDIR', basedir)
+							s = fix_dos_path(k.split('"')[1])
 
-					for j in range(len(sources)):
-						if sources[j] == s:
-							del sources[j]
-							break
+							for j in range(len(sources)):
+								if sources[j] == s:
+									del sources[j]
+									break
 
-			elif '$File' in i and '.h"' not in i:
-				for j in i.split(';'):
-					j = j.replace('$SRCDIR', basedir)
-					s = fix_dos_path(j.split('"')[1])
-					sources.append(s)
+					elif '$File' in i and '.h"' not in i:
+						for j in i.split(';'):
+							j = j.replace('$SRCDIR', basedir)
+							s = fix_dos_path(j.split('"')[1])
+							sources.append(s)
 
-		for i in ret['$Configuration']:
-			if isinstance(i, str):
-				if '$PreprocessorDefinitions' in i:
-					i = i.replace('$BASE', '')
-					s = i.split('"')[1]
-					s = re.split(';|,', s)
-					for j in s:
-						if j != '' and j not in defines:
-							defines.append(j)
-				if '$AdditionalIncludeDirectories' in i:
-					i = i.replace('$BASE', '').replace('$SRCDIR', basedir)
-					s = i.split('"')[1]
-					s = re.split(';|,', s)
-					for j in s:
-						j = j.replace('\\','/')
-						if j != '' and j not in includes:
-							includes.append(j)
-			elif isinstance(i, dict):
-				for key, val in i.items():
-					if '$Compiler' in key:
-						for compiler_item in val:
-							if isinstance(compiler_item, str):
-								if '$PreprocessorDefinitions' in compiler_item:
-									compiler_item = compiler_item.replace('$BASE', '')
-									s = compiler_item.split('"')[1]
-									s = re.split(';|,', s)
-									for j in s:
-										if j != '' and j not in defines:
-											defines.append(j)
-								if '$AdditionalIncludeDirectories' in compiler_item:
-									compiler_item = compiler_item.replace('$BASE', '').replace('$SRCDIR', basedir)
-									s = compiler_item.split('"')[1]
-									s = re.split(';|,', s)
-									for j in s:
-										j = j.replace('\\','/')
-										if j != '' and j not in includes:
-											includes.append(j)
+		if '$Configuration' in ret:
+			for i in ret['$Configuration']:
+				if isinstance(i, str):
+					if '$PreprocessorDefinitions' in i:
+						i = i.replace('$BASE', '')
+						s = i.split('"')[1]
+						s = re.split(';|,', s)
+						for j in s:
+							if j != '' and j not in defines:
+								defines.append(j)
+					if '$AdditionalIncludeDirectories' in i:
+						i = i.replace('$BASE', '').replace('$SRCDIR', basedir)
+						s = i.split('"')[1]
+						s = re.split(';|,', s)
+						for j in s:
+							j = j.replace('\\','/')
+							if j != '' and j not in includes:
+								includes.append(j)
+				elif isinstance(i, list):
+					for item in i:
+						if isinstance(item, str):
+							if '$Compiler' in item:
+								continue
+							if '$PreprocessorDefinitions' in item:
+								item = item.replace('$BASE', '')
+								s = item.split('"')[1]
+								s = re.split(';|,', s)
+								for j in s:
+									if j != '' and j not in defines:
+										defines.append(j)
+							if '$AdditionalIncludeDirectories' in item:
+								item = item.replace('$BASE', '').replace('$SRCDIR', basedir)
+								s = item.split('"')[1]
+								s = re.split(';|,', s)
+								for j in s:
+									j = j.replace('\\','/')
+									if j != '' and j not in includes:
+										includes.append(j)
+
 	os.chdir(back_path)
 
 	return {'defines':defines, 'includes':includes, 'sources': sources}
