@@ -388,41 +388,7 @@ VideoResult_t CBinkMaterial::SoundDeviceCommand( VideoSoundDeviceOperation_t ope
 {
 	AssertExitV( m_bMovieInitialized || m_bMoviePlaying, VideoResult::OPERATION_OUT_OF_SEQUENCE );
 
-	switch( operation )
-	{
-		// On win32, we try and create an audio context from a GUID
-		case VideoSoundDeviceOperation::SET_DIRECT_SOUND_DEVICE:
-		{
-#if defined ( WIN32 )
-			SAFE_RELEASE_AUDIOCONTEXT( m_AudioContext );
-			return ( CreateMovieAudioContext( m_bHasAudio, m_QTMovie, &m_AudioContext ) ? SetResult( VideoResult::SUCCESS ) : SetResult( VideoResult::AUDIO_ERROR_OCCURED ) );
-#else
-			// On any other OS, we don't support this operation
-			return SetResult( VideoResult::OPERATION_NOT_SUPPORTED );
-#endif
-		}
-		case VideoSoundDeviceOperation::SET_SOUND_MANAGER_DEVICE:
-		{
-#if defined ( OSX )
-			SAFE_RELEASE_AUDIOCONTEXT( m_AudioContext );
-			return ( CreateMovieAudioContext( m_bHasAudio, m_QTMovie, &m_AudioContext ) ? SetResult( VideoResult::SUCCESS ) : SetResult( VideoResult::AUDIO_ERROR_OCCURED ) );
-#else
-			// On any other OS, we don't support this operation
-			return SetResult( VideoResult::OPERATION_NOT_SUPPORTED );
-#endif
-		}
-		case VideoSoundDeviceOperation::SET_LIB_AUDIO_DEVICE:
-		case VideoSoundDeviceOperation::HOOK_X_AUDIO:
-		case VideoSoundDeviceOperation::SET_MILES_SOUND_DEVICE:
-		{
-			return SetResult( VideoResult::OPERATION_NOT_SUPPORTED );
-		}
-		default:
-		{
-			return SetResult( VideoResult::BAD_INPUT_PARAMETERS );
-		}
-	}
-
+	return SetResult( VideoResult::OPERATION_NOT_SUPPORTED );
 }
 
 
