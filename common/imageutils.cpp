@@ -9,8 +9,11 @@
 #ifdef PROTECTED_THINGS_ENABLE
 #if !defined( POSIX )
 #undef fopen
+#undef _dont_use_fopen
 #endif // POSIX
 #endif
+
+#undef _dont_use_fopen
 
 #if defined( WIN32 ) && !defined( _X360 )
 #include <windows.h> // SRC only!!
