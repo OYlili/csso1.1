@@ -23,7 +23,7 @@
 
 #ifdef CSTRIKE_DLL
 #include "c_cs_player.h"
-#include "c_weapon_csbase.h"
+#include "../shared/cstrike/weapon_csbase.h"
 #endif
 
 #include "proxyentity.h"
