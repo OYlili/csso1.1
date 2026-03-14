@@ -37,7 +37,10 @@ def build(bld):
 
 	includes = [
 		'.',
+		'cstrike',
+		'cstrike/VGUI',
 		'game_controls',
+		'gameui',
 		'../../common',
 		'../../public',
 		'../../public/tier0',
