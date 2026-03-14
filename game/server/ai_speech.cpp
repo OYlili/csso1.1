@@ -385,11 +385,13 @@ static const int LEN_SPECIFIC_SCENE_MODIFIER = strlen( AI_SPECIFIC_SCENE_MODIFIE
 static void ModifyOrAppendGlobalCriteria( AI_CriteriaSet * RESTRICT outputSet )
 {
 	// Add the round duration and current round time
+#if defined( CSTRIKE_DLL )
 	if ( CSGameRules() )
 	{
 		outputSet->AppendCriteria( "RoundLength", CSGameRules()->GetRoundLength() );
 		outputSet->AppendCriteria( "RoundElapsedTime", CSGameRules()->GetRoundElapsedTime() );
 	}
+#endif
 }
 
 
