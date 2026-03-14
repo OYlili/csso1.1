@@ -164,28 +164,27 @@ def parse_vpcs( env ,vpcs, basedir ):
 					sources.append(s)
 
 		for i in ret['$Configuration']:
-			if '$PreprocessorDefinitions' in i:
-				i = i.replace('$BASE', '')
-				s = i.split('"')[1]
-				s = re.split(';|,', s)
-				for j in s:
-					if j != '' and j not in defines:
-						defines.append(j)
-			if '$AdditionalIncludeDirectories' in i:
-				i = i.replace('$BASE', '').replace('$SRCDIR', basedir)
-				s = i.split('"')[1]
-				s = re.split(';|,', s)
-				for j in s:
-					j = j.replace('\\','/')
-					if j != '' and j not in includes:
-						includes.append(j)
-		
-		if '$Configuration' in ret:
-			for cfg_item in ret['$Configuration']:
-				if isinstance(cfg_item, dict):
-					for key, val in cfg_item.items():
-						if '$Compiler' in key:
-							for compiler_item in val:
+			if isinstance(i, str):
+				if '$PreprocessorDefinitions' in i:
+					i = i.replace('$BASE', '')
+					s = i.split('"')[1]
+					s = re.split(';|,', s)
+					for j in s:
+						if j != '' and j not in defines:
+							defines.append(j)
+				if '$AdditionalIncludeDirectories' in i:
+					i = i.replace('$BASE', '').replace('$SRCDIR', basedir)
+					s = i.split('"')[1]
+					s = re.split(';|,', s)
+					for j in s:
+						j = j.replace('\\','/')
+						if j != '' and j not in includes:
+							includes.append(j)
+			elif isinstance(i, dict):
+				for key, val in i.items():
+					if '$Compiler' in key:
+						for compiler_item in val:
+							if isinstance(compiler_item, str):
 								if '$PreprocessorDefinitions' in compiler_item:
 									compiler_item = compiler_item.replace('$BASE', '')
 									s = compiler_item.split('"')[1]
