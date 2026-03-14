@@ -179,6 +179,28 @@ def parse_vpcs( env ,vpcs, basedir ):
 					j = j.replace('\\','/')
 					if j != '' and j not in includes:
 						includes.append(j)
+		
+		if '$Configuration' in ret:
+			for cfg_item in ret['$Configuration']:
+				if isinstance(cfg_item, dict):
+					for key, val in cfg_item.items():
+						if '$Compiler' in key:
+							for compiler_item in val:
+								if '$PreprocessorDefinitions' in compiler_item:
+									compiler_item = compiler_item.replace('$BASE', '')
+									s = compiler_item.split('"')[1]
+									s = re.split(';|,', s)
+									for j in s:
+										if j != '' and j not in defines:
+											defines.append(j)
+								if '$AdditionalIncludeDirectories' in compiler_item:
+									compiler_item = compiler_item.replace('$BASE', '').replace('$SRCDIR', basedir)
+									s = compiler_item.split('"')[1]
+									s = re.split(';|,', s)
+									for j in s:
+										j = j.replace('\\','/')
+										if j != '' and j not in includes:
+											includes.append(j)
 	os.chdir(back_path)
 
 	return {'defines':defines, 'includes':includes, 'sources': sources}
