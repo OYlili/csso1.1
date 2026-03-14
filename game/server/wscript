@@ -42,6 +42,9 @@ def configure(conf):
 def build(bld):
 	game = vpc_parser.parse_vpcs( bld.env, games[bld.env.GAMES], '../..' )
 
+	if bld.env.GAMES in ['csso', 'cstrike']:
+		bld.env.append_unique('DEFINES', ['CSTRIKE_DLL'])
+
 	includes = [
 		'.',
 		'cstrike',
