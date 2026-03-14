@@ -71,10 +71,12 @@ def build(bld):
 	includes += game["includes"]
 	defines = game["defines"]
 
-	if 'CSTRIKE_DLL' not in defines and bld.env.GAMES in ['csso', 'cstrike']:
-		defines.append('CSTRIKE_DLL')
+	if bld.env.GAMES in ['csso', 'cstrike']:
+		if 'CSTRIKE_DLL' not in defines:
+			defines.append('CSTRIKE_DLL')
 
-	defines.remove('PROTECTED_THINGS_ENABLE')
+	if 'PROTECTED_THINGS_ENABLE' in defines:
+		defines.remove('PROTECTED_THINGS_ENABLE')
 
 	bld.shlib(
 		source   = source,
