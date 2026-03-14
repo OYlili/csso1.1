@@ -19,9 +19,8 @@
 #include "spectatorgui.h"
 #include "c_playerresource.h"
 #include "view.h"
-#ifdef CSTRIKE_DLL
 #include "c_cs_player.h"
-#endif
+#include "cs_shareddefs.h"
 
 #include "clientmode.h"
 #include <vgui_controls/AnimationController.h>
