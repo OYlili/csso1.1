@@ -5,7 +5,8 @@
 //
 //=======================================================================================//
 
-#define PROTECTED_THINGS_ENABLE 0
+#undef fopen
+#undef dont_use_fopen
 
 #if defined( WIN32 ) && !defined( _X360 )
 #include <windows.h> // SRC only!!
