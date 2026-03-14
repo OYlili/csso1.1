@@ -21,13 +21,11 @@
 #ifdef TF_CLIENT_DLL
 	#include "tf_weaponbase.h"
 #endif
-#ifdef CSTRIKE_DLL
-	#include "weapon_csbase.h"
-	#include "weapon_basecsgrenade.h"
-	#include "cs_shareddefs.h"
-	#include "c_cs_player.h"
-	#include "cs_loadout.h"
-#endif
+#include "weapon_csbase.h"
+#include "weapon_basecsgrenade.h"
+#include "cs_shareddefs.h"
+#include "c_cs_player.h"
+#include "cs_loadout.h"
 
 #if defined( REPLAY_ENABLED )
 #include "replay/replaycamera.h"
@@ -42,10 +40,8 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#ifdef CSTRIKE_DLL
-	ConVar cl_righthand( "cl_righthand", "1", FCVAR_ARCHIVE, "Use right-handed view models." );
-	ConVar vm_draw_addon( "vm_draw_addon", "1" );
-#endif
+ConVar cl_righthand( "cl_righthand", "1", FCVAR_ARCHIVE, "Use right-handed view models." );
+ConVar vm_draw_addon( "vm_draw_addon", "1" );
 
 extern ConVar r_drawviewmodel;
 
