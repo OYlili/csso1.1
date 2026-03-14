@@ -8,6 +8,7 @@
 #include "team.h"
 #include "player.h"
 #include "team_spawnpoint.h"
+#include "cs_shareddefs.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
