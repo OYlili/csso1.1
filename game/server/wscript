@@ -45,6 +45,14 @@ def build(bld):
 	
 	game = vpc_parser.parse_vpcs( bld.env, games[bld.env.GAMES], '../..' )
 
+	# 排除所有 HL2 版本的文件
+	new_sources = []
+	for src in game["sources"]:
+		if 'hl2/' not in src:
+			new_sources.append(src)
+	
+	game["sources"] = new_sources
+
 	includes = [
 		'.',
 		'cstrike',
