@@ -3,9 +3,6 @@ name: Build Windows
 on:
   push:
     branches: [cssoso-1.0]
-    paths-ignore:
-      - 'scripts/**'
-      - '.github/workflows/build-android.yml'
   workflow_dispatch:
     inputs:
       create_release:
