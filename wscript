@@ -132,6 +132,7 @@ projects={
 		'ivp/havana/havok/hk_math',
 		'ivp/ivp_compact_builder',
 		'ivp/ivp_physics',
+		'lunasvg',
 		'materialsystem',
 		'mathlib',
 		'particles',
