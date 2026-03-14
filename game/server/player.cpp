@@ -74,6 +74,8 @@
 #include "cs_gamerules.h"
 #endif
 
+#include "cs_shareddefs.h"
+
 #if defined USES_ECON_ITEMS
 #include "econ_wearable.h"
 #endif

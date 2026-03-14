@@ -50,6 +50,8 @@
 #include "weapon_c4.h"
 #endif // CSTRIKE_DLL
 
+#include "cs_shareddefs.h"
+
 #include "in_buttons.h"
 #include "engine/IEngineSound.h"
 #include "tier0/vprof.h"

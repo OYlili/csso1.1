@@ -8,6 +8,7 @@
 #include "cbase.h"
 #include "gamemovement.h"
 #include "cs_gamerules.h"
+#include "cs_shareddefs.h"
 #include "in_buttons.h"
 #include "movevars_shared.h"
 #include "weapon_csbase.h"

@@ -54,8 +54,8 @@
 #include "econ_wearable.h"
 #endif
 
-#ifdef CSTRIKE_DLL
 #include "cs_shareddefs.h"
+#ifdef CSTRIKE_DLL
 #include "basecsgrenade_projectile.h"
 #endif
 
