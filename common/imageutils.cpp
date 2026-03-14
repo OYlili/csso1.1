@@ -5,15 +5,7 @@
 //
 //=======================================================================================//
 
-// @note Tom Bui: we need to use fopen below in the jpeg code, so we can't have this on...
-#ifdef PROTECTED_THINGS_ENABLE
-#if !defined( POSIX )
-#undef fopen
-#undef _dont_use_fopen
-#endif // POSIX
-#endif
-
-#undef _dont_use_fopen
+#define PROTECTED_THINGS_ENABLE 0
 
 #if defined( WIN32 ) && !defined( _X360 )
 #include <windows.h> // SRC only!!
