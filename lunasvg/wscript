@@ -54,12 +54,13 @@ def build(bld):
 	includes = [
 		'.',
 		'../public',
+		'../public/lunasvg',
 		'../public/tier0',
 		'../public/tier1',
 		'../thirdparty/stb'
 	]
 
-	defines = ['RAD_TELEMETRY_DISABLED']
+	defines = ['RAD_TELEMETRY_DISABLED', 'lunasvg_EXPORTS']
 
 	libs = []
 	

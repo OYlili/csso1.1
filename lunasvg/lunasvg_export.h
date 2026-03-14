@@ -9,10 +9,18 @@
 #  ifndef LUNASVG_EXPORT
 #    ifdef lunasvg_EXPORTS
         /* We are building this library */
-#      define LUNASVG_EXPORT 
+#      ifdef _WIN32
+#        define LUNASVG_EXPORT __declspec(dllexport)
+#      else
+#        define LUNASVG_EXPORT __attribute__((visibility("default")))
+#      endif
 #    else
         /* We are using this library */
-#      define LUNASVG_EXPORT 
+#      ifdef _WIN32
+#        define LUNASVG_EXPORT __declspec(dllimport)
+#      else
+#        define LUNASVG_EXPORT __attribute__((visibility("default")))
+#      endif
 #    endif
 #  endif
 
