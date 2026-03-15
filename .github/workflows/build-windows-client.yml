@@ -62,6 +62,12 @@ jobs:
         }
         Write-Host "Artifacts directory contents:"
         Get-ChildItem -Path artifacts-client -Recurse | ForEach-Object { Write-Host "  $($_.FullName)" }
+        Write-Host "Copying hl2_launcher.exe to hl2.exe..."
+        Get-ChildItem -Path artifacts-client -Filter "hl2_launcher.exe" -Recurse | ForEach-Object {
+          $targetPath = $_.FullName -replace 'hl2_launcher\.exe$', 'hl2.exe'
+          Copy-Item -Path $_.FullName -Destination $targetPath -Force
+          Write-Host "  Copied to: $targetPath"
+        }
         Compress-Archive -Path "artifacts-client\*" -DestinationPath "csso-client-windows-x86.zip" -Force
         Write-Host "Created zip file: $(Get-Item csso-client-windows-x86.zip | Select-Object -ExpandProperty Length) bytes"
 
