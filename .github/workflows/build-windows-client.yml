@@ -41,16 +41,36 @@ jobs:
       shell: powershell
       run: |
         New-Item -ItemType Directory -Force -Path artifacts-client
+        Write-Host "Checking build directories..."
+        Get-ChildItem -Path . -Directory | ForEach-Object { Write-Host "Directory: $($_.Name)" }
         if (Test-Path "build\release") {
+          Write-Host "Found build\release directory"
           Copy-Item -Path "build\release\*" -Destination "artifacts-client" -Recurse
+        } elseif (Test-Path "build") {
+          Write-Host "Found build directory, looking for release subdirectories"
+          Get-ChildItem -Path "build" -Directory | ForEach-Object {
+            Write-Host "Build subdirectory: $($_.Name)"
+          }
+          if (Test-Path "build\release_x86") {
+            Copy-Item -Path "build\release_x86\*" -Destination "artifacts-client" -Recurse
+          } elseif (Test-Path "build\release_x64") {
+            Copy-Item -Path "build\release_x64\*" -Destination "artifacts-client" -Recurse
+          } else {
+            Write-Host "Copying entire build directory contents"
+            Copy-Item -Path "build\*" -Destination "artifacts-client" -Recurse -ErrorAction SilentlyContinue
+          }
         }
-        Compress-Archive -Path "artifacts-client\*" -DestinationPath "csso-client-windows-x86.zip"
+        Write-Host "Artifacts directory contents:"
+        Get-ChildItem -Path artifacts-client -Recurse | ForEach-Object { Write-Host "  $($_.FullName)" }
+        Compress-Archive -Path "artifacts-client\*" -DestinationPath "csso-client-windows-x86.zip" -Force
+        Write-Host "Created zip file: $(Get-Item csso-client-windows-x86.zip | Select-Object -ExpandProperty Length) bytes"
 
     - name: Upload Client Artifact
       uses: actions/upload-artifact@v4
       with:
         name: csso-client-windows-x86
         path: csso-client-windows-x86.zip
+        if-no-files-found: warn
 
   Build-Windows-Client-64bit:
     runs-on: windows-latest
@@ -78,16 +98,36 @@ jobs:
       shell: powershell
       run: |
         New-Item -ItemType Directory -Force -Path artifacts-client
+        Write-Host "Checking build directories..."
+        Get-ChildItem -Path . -Directory | ForEach-Object { Write-Host "Directory: $($_.Name)" }
         if (Test-Path "build\release") {
+          Write-Host "Found build\release directory"
           Copy-Item -Path "build\release\*" -Destination "artifacts-client" -Recurse
+        } elseif (Test-Path "build") {
+          Write-Host "Found build directory, looking for release subdirectories"
+          Get-ChildItem -Path "build" -Directory | ForEach-Object {
+            Write-Host "Build subdirectory: $($_.Name)"
+          }
+          if (Test-Path "build\release_x86") {
+            Copy-Item -Path "build\release_x86\*" -Destination "artifacts-client" -Recurse
+          } elseif (Test-Path "build\release_x64") {
+            Copy-Item -Path "build\release_x64\*" -Destination "artifacts-client" -Recurse
+          } else {
+            Write-Host "Copying entire build directory contents"
+            Copy-Item -Path "build\*" -Destination "artifacts-client" -Recurse -ErrorAction SilentlyContinue
+          }
         }
-        Compress-Archive -Path "artifacts-client\*" -DestinationPath "csso-client-windows-x64.zip"
+        Write-Host "Artifacts directory contents:"
+        Get-ChildItem -Path artifacts-client -Recurse | ForEach-Object { Write-Host "  $($_.FullName)" }
+        Compress-Archive -Path "artifacts-client\*" -DestinationPath "csso-client-windows-x64.zip" -Force
+        Write-Host "Created zip file: $(Get-Item csso-client-windows-x64.zip | Select-Object -ExpandProperty Length) bytes"
 
     - name: Upload Client Artifact
       uses: actions/upload-artifact@v4
       with:
         name: csso-client-windows-x64
         path: csso-client-windows-x64.zip
+        if-no-files-found: warn
 
   Create-Client-Release:
     needs: [Build-Windows-Client-32bit, Build-Windows-Client-64bit]
@@ -103,7 +143,12 @@ jobs:
         path: artifacts
 
     - name: Display structure of downloaded files
-      run: ls -R artifacts
+      run: |
+        pwd
+        ls -la
+        if [ -d "artifacts" ]; then
+          ls -R artifacts
+        fi
 
     - name: Create Release
       uses: softprops/action-gh-release@v2
@@ -122,8 +167,8 @@ jobs:
           - `csso-client-windows-x86.zip` - Windows Client (32-bit)
           - `csso-client-windows-x64.zip` - Windows Client (64-bit)
         files: |
-          artifacts/csso-client-windows-x86/csso-client-windows-x86.zip
-          artifacts/csso-client-windows-x64/csso-client-windows-x64.zip
+          artifacts/csso-client-windows-x86.zip
+          artifacts/csso-client-windows-x64.zip
         draft: false
         prerelease: false
       env:
