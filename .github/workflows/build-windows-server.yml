@@ -141,13 +141,14 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         path: artifacts
+        merge-multiple: true
 
     - name: Display structure of downloaded files
       run: |
         pwd
         ls -la
         if [ -d "artifacts" ]; then
-          ls -R artifacts
+          ls -la artifacts
         fi
 
     - name: Create Release
