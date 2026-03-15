@@ -34,7 +34,7 @@ jobs:
       run: |
         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
         python waf distclean 2>nul || echo "No previous build to clean"
-        python waf configure -T release --32bits --build-games csso || exit /b 1
+        python waf configure -T release --build-games csso || exit /b 1
         python waf build || exit /b 1
 
     - name: Prepare Client Artifacts
@@ -72,65 +72,8 @@ jobs:
         path: csso-client-windows-x86.zip
         if-no-files-found: warn
 
-  Build-Windows-Client-64bit:
-    runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
-        fetch-depth: 0
-
-    - name: Initialize submodules
-      shell: cmd
-      run: |
-        git submodule update --init --recursive
-
-    - name: Configure and Build Client (64-bit)
-      shell: cmd
-      run: |
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-        python waf distclean 2>nul || echo "No previous build to clean"
-        python waf configure -T release --build-games csso || exit /b 1
-        python waf build || exit /b 1
-
-    - name: Prepare Client Artifacts
-      shell: powershell
-      run: |
-        New-Item -ItemType Directory -Force -Path artifacts-client
-        Write-Host "Checking build directories..."
-        Get-ChildItem -Path . -Directory | ForEach-Object { Write-Host "Directory: $($_.Name)" }
-        if (Test-Path "build\release") {
-          Write-Host "Found build\release directory"
-          Copy-Item -Path "build\release\*" -Destination "artifacts-client" -Recurse
-        } elseif (Test-Path "build") {
-          Write-Host "Found build directory, looking for release subdirectories"
-          Get-ChildItem -Path "build" -Directory | ForEach-Object {
-            Write-Host "Build subdirectory: $($_.Name)"
-          }
-          if (Test-Path "build\release_x86") {
-            Copy-Item -Path "build\release_x86\*" -Destination "artifacts-client" -Recurse
-          } elseif (Test-Path "build\release_x64") {
-            Copy-Item -Path "build\release_x64\*" -Destination "artifacts-client" -Recurse
-          } else {
-            Write-Host "Copying entire build directory contents"
-            Copy-Item -Path "build\*" -Destination "artifacts-client" -Recurse -ErrorAction SilentlyContinue
-          }
-        }
-        Write-Host "Artifacts directory contents:"
-        Get-ChildItem -Path artifacts-client -Recurse | ForEach-Object { Write-Host "  $($_.FullName)" }
-        Compress-Archive -Path "artifacts-client\*" -DestinationPath "csso-client-windows-x64.zip" -Force
-        Write-Host "Created zip file: $(Get-Item csso-client-windows-x64.zip | Select-Object -ExpandProperty Length) bytes"
-
-    - name: Upload Client Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: csso-client-windows-x64
-        path: csso-client-windows-x64.zip
-        if-no-files-found: warn
-
   Create-Client-Release:
-    needs: [Build-Windows-Client-32bit, Build-Windows-Client-64bit]
+    needs: [Build-Windows-Client-32bit]
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true') }}
 
@@ -166,10 +109,8 @@ jobs:
           
           **Downloads:**
           - `csso-client-windows-x86.zip` - Windows Client (32-bit)
-          - `csso-client-windows-x64.zip` - Windows Client (64-bit)
         files: |
           artifacts/csso-client-windows-x86.zip
-          artifacts/csso-client-windows-x64.zip
         draft: false
         prerelease: false
       env:
