@@ -41,7 +41,7 @@ def build(bld):
 	# 排除所有 HL2 版本的文件
 	new_sources = []
 	for src in game["sources"]:
-		if 'hl2/' not in src:
+		if 'hl2/' not in src and 'hud_base_account' not in src:
 			new_sources.append(src)
 	
 	game["sources"] = new_sources
