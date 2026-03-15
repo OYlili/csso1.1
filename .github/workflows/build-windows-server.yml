@@ -1,4 +1,4 @@
-name: Build Windows
+name: Build Windows Server
 
 on:
   push:
@@ -15,80 +15,6 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  Build-Windows-Client-32bit:
-    runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
-        fetch-depth: 0
-
-    - name: Initialize submodules
-      shell: cmd
-      run: |
-        git submodule update --init --recursive
-
-    - name: Configure and Build Client (32-bit)
-      shell: cmd
-      run: |
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
-        python waf distclean 2>nul || echo "No previous build to clean"
-        python waf configure -T release --32bits --build-games csso || exit /b 1
-        python waf build || exit /b 1
-
-    - name: Prepare Client Artifacts
-      shell: powershell
-      run: |
-        New-Item -ItemType Directory -Force -Path artifacts-client
-        if (Test-Path "build\release") {
-          Copy-Item -Path "build\release\*" -Destination "artifacts-client" -Recurse
-        }
-        Compress-Archive -Path "artifacts-client\*" -DestinationPath "csso-client-windows-x86.zip"
-
-    - name: Upload Client Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: csso-client-windows-x86
-        path: csso-client-windows-x86.zip
-
-  Build-Windows-Client-64bit:
-    runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
-        fetch-depth: 0
-
-    - name: Initialize submodules
-      shell: cmd
-      run: |
-        git submodule update --init --recursive
-
-    - name: Configure and Build Client (64-bit)
-      shell: cmd
-      run: |
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-        python waf distclean 2>nul || echo "No previous build to clean"
-        python waf configure -T release --build-games csso || exit /b 1
-        python waf build || exit /b 1
-
-    - name: Prepare Client Artifacts
-      shell: powershell
-      run: |
-        New-Item -ItemType Directory -Force -Path artifacts-client
-        if (Test-Path "build\release") {
-          Copy-Item -Path "build\release\*" -Destination "artifacts-client" -Recurse
-        }
-        Compress-Archive -Path "artifacts-client\*" -DestinationPath "csso-client-windows-x64.zip"
-
-    - name: Upload Client Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: csso-client-windows-x64
-        path: csso-client-windows-x64.zip
-
   Build-Windows-Server-32bit:
     runs-on: windows-latest
 
@@ -163,8 +89,8 @@ jobs:
         name: csso-server-windows-x64
         path: csso-server-windows-x64.zip
 
-  Create-Release:
-    needs: [Build-Windows-Client-32bit, Build-Windows-Client-64bit, Build-Windows-Server-32bit, Build-Windows-Server-64bit]
+  Create-Server-Release:
+    needs: [Build-Windows-Server-32bit, Build-Windows-Server-64bit]
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true') }}
 
@@ -182,10 +108,10 @@ jobs:
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: win-v${{ github.run_number }}
-        name: Windows Build v${{ github.run_number }}
+        tag_name: win-server-v${{ github.run_number }}
+        name: Windows Server Build v${{ github.run_number }}
         body: |
-          CSSO Windows Build Release
+          CSSO Windows Server Build Release
           
           **Build Info:**
           - Commit: ${{ github.sha }}
@@ -193,13 +119,9 @@ jobs:
           - Build Number: ${{ github.run_number }}
           
           **Downloads:**
-          - `csso-client-windows-x86.zip` - Windows Client (32-bit)
-          - `csso-client-windows-x64.zip` - Windows Client (64-bit)
           - `csso-server-windows-x86.zip` - Windows Server (32-bit)
           - `csso-server-windows-x64.zip` - Windows Server (64-bit)
         files: |
-          artifacts/csso-client-windows-x86/csso-client-windows-x86.zip
-          artifacts/csso-client-windows-x64/csso-client-windows-x64.zip
           artifacts/csso-server-windows-x86/csso-server-windows-x86.zip
           artifacts/csso-server-windows-x64/csso-server-windows-x64.zip
         draft: false
