@@ -89,7 +89,7 @@ projects={
 		'vgui2/vgui_surfacelib',
 		'vguimatsurface',
 		'video',
-		'avi',
+		'video/video_bink',
 		'vphysics',
 		'vpklib',
 		'vstdlib',
